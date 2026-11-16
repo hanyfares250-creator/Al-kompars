@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#970d20">
+<title>الكومبارس - AL KOMPARS</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Tahoma, Arial, sans-serif;
+  background: radial-gradient(circle, #c51d32, #650716);
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app {
+  max-width: 520px;
+  margin: auto;
+}
+
+header {
+  text-align: center;
+  padding: 25px 10px;
+}
+
+.logo {
+  font-size: 48px;
+  font-weight: 1000;
+  color: #ffd36b;
+  text-shadow: 0 5px 10px #300000;
+}
+
+.sub {
+  color: #ffe8c0;
+  margin-top: 8px;
+}
+
+.panel {
+  background: linear-gradient(145deg, #3a0a12, #170509);
+  border: 2px solid #d99b43;
+  border-radius: 24px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 10px 30px #0007;
+}
+
+h2 {
+  color: #ffd36b;
+  text-align: center;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  margin: 20px;
+}
+
+.counter button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #c51d32;
+  color: white;
+  border: 2px solid #ffd36b;
+  font-size: 28px;
+}
+
+#count {
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.primary {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #ffd36b;
+  border-radius: 15px;
+  background: linear-gradient(#ff5968, #97091c);
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+
+<header>
+  <div class="logo">الكومبارس</div>
+  <div class="sub">AL-KOMPARS</div>
+</header>
+
+<section id="home" class="panel">
+  <h2>اختار عدد اللاعبين</h2>
+
+  <div class="counter">
+    <button onclick="changePlayers(-1)">−</button>
+    <div id="count">4</div>
+    <button onclick="changePlayers(1)">+</button>
+  </div>
+
+  <button class="primary" onclick="startGame()">
+    ابدأ اللعبة
+  </button>
+</section>
+
+<section id="game" class="panel hidden">
+  <h2>الكومبارس 🎭</h2>
+  <div id="card"></div>
+  <button class="primary" onclick="nextCard()">
+    الكارت التالي
+  </button>
+</section>
+<script>
+
+let players = 4;
+let currentPlayer = 1;
+let currentCard = 0;
+let deck = [];
+
+function changePlayers(value) {
+  players += value;
+
+  if (players < 3) players = 3;
+  if (players > 12) players = 12;
+
+  document.getElementById("count").innerText = players;
+}
+
+const roles = [
+"صنايعي ألوميتال فصيح",
+"مدرس بيحب الهزار",
+"سواق تاكسي رغاي",
+"مصور أفراح",
+"طباخ عنده أسرار",
+"حارس عمارة",
+"مندوب مبيعات",
+"ميكانيكي عبقري",
+"مذيع راديو",
+"صاحب كافيه",
+"لاعب كرة معتزل",
+"محامي واثق",
+"طبيب بيشرح كتير",
+"عامل توصيل",
+"مذيع نشرة",
+"منظم حفلات",
+"بائع فاكهة",
+"رسام موهوب",
+"مخترع غريب",
+"مدير شركة",
+"معلق رياضي",
+"مخرج سينما",
+"مزارع خبير",
+"خبير كمبيوتر",
+"مدرب تنمية بشرية",
+"موظف استقبال",
+"ساعي بريد",
+"مصمم أزياء",
+"مرشد سياحي",
+"محقق خاص",
+"مغني في فرقة",
+"صاحب مكتبة",
+"نجار شاطر",
+"كهربائي هادي",
+"خبير قهوة",
+"لاعب شطرنج",
+"صحفي فضولي",
+"مدرب سباحة",
+"مقدم برامج",
+"تاجر تحف",
+"مصلح أحذية",
+"عامل مطعم",
+"سائق أتوبيس",
+"مربي حمام",
+"خبير نباتات",
+"حلاق مشهور",
+"مدير فندق",
+"مترجم فوري",
+"صانع محتوى",
+"منسق ملابس",
+"معلق ألعاب",
+"مدرس موسيقى",
+"بائع ورد",
+"مصور طبيعة",
+"فني صوت",
+"مراقب جودة",
+"صاحب مخبز",
+"مدرب لياقة",
+"كاتب قصص",
+"منظم رحلات"
+];
+
+const situations = [
+"اتأخرت عن ميعاد مهم ولازم تبرر السبب",
+"دخلت مكانًا ونسيت أنت جاي ليه",
+"قابلت شخصًا تعرفه لكن نسيت اسمه",
+"اقنع المجموعة بفكرة غريبة",
+"احكي موقفًا مضحكًا",
+"أنت المسؤول عن تنظيم رحلة",
+"اخترع إعلانًا لمنتج عادي",
+"اشرح لعبة جديدة في دقيقة",
+"أنت مذيع يعلن خبرًا عجيبًا",
+"حاول تهدئة نقاش",
+"صف مكانًا خياليًا",
+"احك قصة من خيالك",
+"أنت بائع محترف",
+"مثّل أنك تستقبل ضيفًا مهمًا",
+"أنت حكم في مسابقة غريبة",
+"اشرح طريقة صنع شيء",
+"اقترح حلًا لمشكلة طريفة",
+"تحدث كأنك في إعلان تلفزيوني",
+"اخترع لقبًا للاعب آخر",
+"قدم نفسك بطريقة مضحكة",
+"أنت مخرج فيلم",
+"احك قصة من خمس جمل",
+"أنت صحفي في مؤتمر",
+"مثّل دور مدرس",
+"أنت مقدم برنامج مسابقات"
+];
+
+const surprises = [
+"اختر لاعبًا يشاركك الدور",
+"بدّل دورك مع اللاعب التالي",
+"احصل على محاولة إضافية",
+"اختر لاعبًا يبدأ الجولة",
+"تخطَّ دورك هذه المرة",
+"اسحب كارتًا إضافيًا",
+"اختر كلمة تستخدمها في دورك",
+"اعكس ترتيب اللعب",
+"اختر لاعبًا يساعدك",
+"احصل على لقب الجولة",
+"تحدث كأنك مذيع",
+"اختر موضوع الجولة",
+"أعد خلط الكروت",
+"شارك لاعبًا آخر في الحكاية",
+"ابدأ الجولة بسؤال",
+"غيّر طريقة تمثيلك",
+"امنح لاعبًا فرصة إضافية",
+"اختر لاعبًا يعطيك تحديًا",
+"الجولة القادمة بدون أسماء",
+"مثّل إعلانًا قصيرًا"
+];
+
+const bonuses = [
+"أعد سحب كارت واحد",
+"اختر من يبدأ الجولة",
+"اطلب توضيحًا إضافيًا",
+"مرّر التحدي مرة واحدة",
+"اختر لاعبًا يساعدك",
+"بدّل كارتك قبل كشفه",
+"أضف عشر ثوانٍ لدورك",
+"اختر موضوع الجولة",
+"أعد تمثيل الدور",
+"اسحب كارتًا من فئة أخرى",
+"اختر ترتيب اللاعبين",
+"احتفظ بهذه الميزة",
+"اختر لاعبًا يشاركك",
+"اطلب تصفيق الجمهور",
+"أعد خلط كروت الجولة"
+];
+
+</script>
+<script>
+function buildDeck() {
+  deck = [];
+
+  roles.forEach(name => {
+    deck.push({
+      type: "شخصية",
+      name: name,
+      icon: "🎭"
+    });
+  });
+
+  situations.forEach(name => {
+    deck.push({
+      type: "تحدي",
+      name: name,
+      icon: "🎬"
+    });
+  });
+
+  surprises.forEach(name => {
+    deck.push({
+      type: "مفاجأة",
+      name: name,
+      icon: "✨"
+    });
+  });
+
+  bonuses.forEach(name => {
+    deck.push({
+      type: "ميزة",
+      name: name,
+      icon: "⭐"
+    });
+  });
+
+  while (deck.length < 120) {
+    deck.push({
+      type: "مفاجأة",
+      name: "ابتكر موقفًا جديدًا وأمتع اللاعبين",
+      icon: "✨"
+    });
+  }
+
+  deck.sort(() => Math.random() - 0.5);
+
+  currentCard = 0;
+  currentPlayer = 1;
+}
+
+function startGame() {
+  buildDeck();
+
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  nextCard();
+}
+
+function nextCard() {
+  if (currentCard >= deck.length) {
+    document.getElementById("card").innerHTML =
+      "🎉 انتهت الكروت! أعد خلط اللعبة.";
+    return;
+  }
+
+  const card = deck[currentCard];
+
+  document.getElementById("card").innerHTML = `
+    <div style="
+      background:#fff0d5;
+      color:#7e091b;
+      border:5px double #d99b43;
+      border-radius:20px;
+      padding:35px 15px;
+      margin:20px 0;
+      text-align:center;
+      min-height:220px;
+    ">
+      <div style="font-size:45px">${card.icon}</div>
+      <h2>${card.type}</h2>
+      <h3>${card.name}</h3>
+      <p>اللاعب رقم ${currentPlayer}</p>
+    </div>
+  `;
+
+  currentCard++;
+  currentPlayer = (currentPlayer % players) + 1;
+}
+</script>
+</main>
+</body>
+</html>
